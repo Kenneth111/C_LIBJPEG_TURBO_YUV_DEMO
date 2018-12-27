@@ -1,14 +1,11 @@
-//
-// Created by Lenovo on 2018/12/27.
-//
 #include <stdio.h>
 #include <stdlib.h>
 #include "jpg_turbo/turbojpeg.h"
 #include "yuv444_test.h"
 #include "tj_test.h"
 
-void recordFrameIntoYUVFile(char *filename, unsigned char *frame, int height, int width, int flag_yuv420){
-    //记录图像到文件中
+// write a YUV frame to a file
+void recordFrameIntoYUVFile(char *filename, unsigned char *frame, int height, int width, int is_yuv420){
     FILE * pRecordFile;
     int ii;
     pRecordFile = fopen (filename, "wb+");
@@ -25,7 +22,7 @@ void recordFrameIntoYUVFile(char *filename, unsigned char *frame, int height, in
             p += width;
         }
 
-        if(flag_yuv420){
+        if(is_yuv420){
             int height2 = (height + 1) / 2;
             int width2  = (width + 1) / 2;
             int stride2 = (width + 1) / 2;
@@ -58,13 +55,14 @@ void recordFrameIntoYUVFile(char *filename, unsigned char *frame, int height, in
     }
 }
 
-int readFrameFromYUVFile(const char *filename, unsigned char *yuv_buffer, int height, int width, int frame_no, int flag_yuv420) {
+// read a YUV frame from a yuv file
+int readFrameFromYUVFile(const char *filename, unsigned char *yuv_buffer, int height, int width, int frame_no, int is_yuv420) {
     int success = -1;
     long skip_size;
     unsigned char *image_y = yuv_buffer;
     unsigned char *image_u = yuv_buffer + height * width;
     unsigned char *image_v;
-    if(flag_yuv420){
+    if(is_yuv420){
         skip_size = frame_no * width * height * 3 / 2 ;
         image_v = image_u + height * width / 4;
     } else {
@@ -88,7 +86,7 @@ int readFrameFromYUVFile(const char *filename, unsigned char *yuv_buffer, int he
     }
     else
     {
-        if (flag_yuv420) {
+        if (is_yuv420) {
             int frame_height2 = (frame_height + 1) / 2;
             int frame_width2 = (frame_width + 1) / 2;
             int frame_stride2 = frame_stride / 2;
@@ -175,6 +173,7 @@ int readFrameFromYUVFile(const char *filename, unsigned char *yuv_buffer, int he
     return success;
 }
 
+// compress a yuv frame in memory into a jpg file
 int yuv_compress(unsigned char *yuv_buffer, int height, int width, int is_yuv420){
     tjhandle handle = NULL;
     handle=tjInitCompress();
@@ -194,6 +193,7 @@ int yuv_compress(unsigned char *yuv_buffer, int height, int width, int is_yuv420
     return ret;
 }
 
+// decompress a yuv frame from a jpg buffer and save the frame into a yuv file
 int yuv_decompress(unsigned char *jpg_buffer, unsigned long jpg_size, int height, int width, int is_yuv420){
     tjhandle handle = NULL;
     handle = tjInitDecompress();
@@ -213,11 +213,12 @@ int yuv_decompress(unsigned char *jpg_buffer, unsigned long jpg_size, int height
     return ret;
 }
 
-int yuv444_test(){
-//    int size = tjBufSizeYUV2(1920, 1, 1080, TJSAMP_444);
+int yuv444_test(char *yuv_filename){
+    // this function can be used to calculate how much memory should be allocated
+    // int size = tjBufSizeYUV2(1920, 1, 1080, TJSAMP_444);
     // YUV444P
     unsigned char *yuv_buffer = (unsigned char*)malloc(1920 * 1080 * 3);
-    if(readFrameFromYUVFile("enc_yuv.yuv", yuv_buffer, 1080, 1920, 0, 0)){
+    if(readFrameFromYUVFile(yuv_filename, yuv_buffer, 1080, 1920, 0, 0)){
         return -1;
     }
     int cstart = get_timer_now();
@@ -226,12 +227,14 @@ int yuv444_test(){
     printf("yuv compress time: %d\n", cend - cstart);
     tjp_info_t tinfo;
     tinfo.jpg_size = 0;
+    // these two members are unused
     tinfo.outheight = 1080;
     tinfo.outwidth = 1920;
     unsigned char *jpg_buffer = read_file2buffer("yuv2jpg.jpg", &tinfo);
     int dstart = get_timer_now();
     yuv_decompress(jpg_buffer, tinfo.jpg_size, 1080, 1920, 0);
     int dend = get_timer_now();
+    // it's quite strange the decompress time is longer than the compress time
     printf("yuv decompress time: %d\n", dend - dstart);
     free(yuv_buffer);
     return 0;

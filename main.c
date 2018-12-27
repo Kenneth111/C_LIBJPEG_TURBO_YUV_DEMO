@@ -4,6 +4,6 @@
 int main()
 {
     tj_test();
-    yuv444_test();
+    yuv444_test("enc_yuv.yuv");
 
 }

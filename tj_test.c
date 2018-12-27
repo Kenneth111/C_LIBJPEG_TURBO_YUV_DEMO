@@ -1,6 +1,5 @@
-//
-// Created by Lenovo on 2018/12/27.
-//
+// codes copied from https://blog.csdn.net/subfate/article/details/46794639
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>

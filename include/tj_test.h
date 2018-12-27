@@ -1,6 +1,4 @@
-//
-// Created by Lenovo on 2018/12/27.
-//
+// codes copied from https://blog.csdn.net/subfate/article/details/46794639
 
 #ifndef TEST_JPG_TURBO_TJ_TEST_H
 #define TEST_JPG_TURBO_TJ_TEST_H
