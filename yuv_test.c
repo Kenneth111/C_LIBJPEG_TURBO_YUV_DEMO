@@ -207,7 +207,7 @@ int yuv_decompress(unsigned char *jpg_buffer, unsigned long jpg_size, int height
         yuv_buffer = (unsigned char*)malloc(height * width * 3);
     }
     int ret = tjDecompressToYUV2(handle, jpg_buffer, jpg_size, yuv_buffer, width, 1, height, 0);
-    recordFrameIntoYUVFile("outyuv.yuv", yuv_buffer, height, width, 0);
+    recordFrameIntoYUVFile("outyuv.yuv", yuv_buffer, height, width, is_yuv420);
     free(yuv_buffer);
     tjDestroy(handle);
     return ret;
