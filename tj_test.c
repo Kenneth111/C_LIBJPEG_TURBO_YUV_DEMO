@@ -7,16 +7,9 @@
 #include <sys/stat.h>
 #include "jpg_turbo/turbojpeg.h"
 #include "tj_test.h"
-typedef unsigned char uchar;
-
-typedef struct tjp_info {
-    int outwidth;
-    int outheight;
-    unsigned long jpg_size;
-}tjp_info_t;
 
 /*获取当前ms数*/
-static int get_timer_now ()
+int get_timer_now ()
 {
     struct timeval now;
     gettimeofday(&now, NULL);
