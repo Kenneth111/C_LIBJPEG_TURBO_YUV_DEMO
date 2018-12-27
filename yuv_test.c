@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "jpg_turbo/turbojpeg.h"
-#include "yuv444_test.h"
+#include "yuv_test.h"
 #include "tj_test.h"
 
 // write a YUV frame to a file
@@ -213,16 +213,16 @@ int yuv_decompress(unsigned char *jpg_buffer, unsigned long jpg_size, int height
     return ret;
 }
 
-int yuv444_test(char *yuv_filename){
+int yuv_test(char *yuv_filename, int is_yuv420){
     // this function can be used to calculate how much memory should be allocated
     // int size = tjBufSizeYUV2(1920, 1, 1080, TJSAMP_444);
     // YUV444P
     unsigned char *yuv_buffer = (unsigned char*)malloc(1920 * 1080 * 3);
-    if(readFrameFromYUVFile(yuv_filename, yuv_buffer, 1080, 1920, 0, 0)){
+    if(readFrameFromYUVFile(yuv_filename, yuv_buffer, 1080, 1920, 0, is_yuv420)){
         return -1;
     }
     int cstart = get_timer_now();
-    yuv_compress(yuv_buffer, 1080, 1920, 0);
+    yuv_compress(yuv_buffer, 1080, 1920, is_yuv420);
     int cend = get_timer_now();
     printf("yuv compress time: %d\n", cend - cstart);
     tjp_info_t tinfo;
@@ -232,7 +232,7 @@ int yuv444_test(char *yuv_filename){
     tinfo.outwidth = 1920;
     unsigned char *jpg_buffer = read_file2buffer("yuv2jpg.jpg", &tinfo);
     int dstart = get_timer_now();
-    yuv_decompress(jpg_buffer, tinfo.jpg_size, 1080, 1920, 0);
+    yuv_decompress(jpg_buffer, tinfo.jpg_size, 1080, 1920, is_yuv420);
     int dend = get_timer_now();
     // it's quite strange the decompress time is longer than the compress time
     printf("yuv decompress time: %d\n", dend - dstart);
