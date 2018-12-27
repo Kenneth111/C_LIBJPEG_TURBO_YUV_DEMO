@@ -236,6 +236,7 @@ int yuv_test(char *yuv_filename, int is_yuv420){
     int dend = get_timer_now();
     // it's quite strange the decompress time is longer than the compress time
     printf("yuv decompress time: %d\n", dend - dstart);
+    free(jpg_buffer);
     free(yuv_buffer);
     return 0;
 }
