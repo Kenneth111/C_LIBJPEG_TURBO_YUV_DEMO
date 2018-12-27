@@ -36,7 +36,7 @@ uchar *read_file2buffer(char *filepath, tjp_info_t *tinfo)
 }
 
 /*写内存到文件*/
-void write_buffer2file(char *filename, uchar *buffer, int size)
+void write_buffer2file(char *filename, uchar *buffer, unsigned long size)
 {
     FILE *fd = fopen(filename,"wb");
     if (NULL == fd) {

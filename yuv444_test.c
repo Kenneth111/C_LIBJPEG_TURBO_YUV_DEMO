@@ -3,7 +3,6 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include "jpg_turbo/turbojpeg.h"
 #include "yuv444_test.h"
 #include "tj_test.h"
@@ -11,7 +10,7 @@
 void recordFrameIntoYUVFile(char *filename, unsigned char *frame, int height, int width, int flag_yuv420){
     //记录图像到文件中
     FILE * pRecordFile;
-    int ii,jj;
+    int ii;
     pRecordFile = fopen (filename, "wb+");
     if (pRecordFile == NULL)
     {
@@ -66,7 +65,7 @@ int readFrameFromYUVFile(const char *filename, unsigned char *yuv_buffer, int he
     unsigned char *image_u = yuv_buffer + height * width;
     unsigned char *image_v;
     if(flag_yuv420){
-        skip_size = frame_no * width * height * 1.5 ;
+        skip_size = frame_no * width * height * 3 / 2 ;
         image_v = image_u + height * width / 4;
     } else {
         skip_size = frame_no * width * height * 3;
@@ -221,12 +220,19 @@ int yuv444_test(){
     if(readFrameFromYUVFile("enc_yuv.yuv", yuv_buffer, 1080, 1920, 0, 0)){
         return -1;
     }
+    int cstart = get_timer_now();
     yuv_compress(yuv_buffer, 1080, 1920, 0);
+    int cend = get_timer_now();
+    printf("yuv compress time: %d\n", cend - cstart);
     tjp_info_t tinfo;
     tinfo.jpg_size = 0;
     tinfo.outheight = 1080;
     tinfo.outwidth = 1920;
     unsigned char *jpg_buffer = read_file2buffer("yuv2jpg.jpg", &tinfo);
+    int dstart = get_timer_now();
     yuv_decompress(jpg_buffer, tinfo.jpg_size, 1080, 1920, 0);
+    int dend = get_timer_now();
+    printf("yuv decompress time: %d\n", dend - dstart);
     free(yuv_buffer);
+    return 0;
 }
